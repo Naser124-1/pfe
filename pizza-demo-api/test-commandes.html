@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Commandes Pizza</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #commandes {
+      margin-top: 20px;
+    }
+    .commande {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧾 Liste des Commandes</h1>
+  <button onclick="getCommandes()">Voir les commandes</button>
+
+  <div id="commandes"></div>
+
+  <script>
+    function getCommandes() {
+      fetch('http://localhost:4000/list-commandes?key=my_secret_key')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Erreur API : " + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          const commandesDiv = document.getElementById('commandes');
+          commandesDiv.innerHTML = ""; // vider avant d'ajouter
+
+          if (data.data && data.data.length > 0) {
+            data.data.forEach(cmd => {
+              const bloc = document.createElement("div");
+              bloc.className = "commande";
+              bloc.innerHTML = `
+                <strong>ID:</strong> ${cmd.id} <br>
+                <strong>Client:</strong> ${cmd.source} <br>
+                <strong>Contenu:</strong> ${JSON.stringify(cmd.contenu)} <br>
+                <strong>Statut:</strong> ${cmd.statut} <br>
+                <strong>Date:</strong> ${cmd.date_commande}
+              `;
+              commandesDiv.appendChild(bloc);
+            });
+          } else {
+            commandesDiv.innerHTML = "<p>Aucune commande trouvée.</p>";
+          }
+        })
+        .catch(err => {
+          document.getElementById('commandes').innerHTML =
+            `<p style="color:red;">Erreur : ${err.message}</p>`;
+        });
+    }
+  </script>
+
+</body>
+</html>
